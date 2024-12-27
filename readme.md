@@ -1,7 +1,8 @@
+## Different Loss and Usages
 |Loss type|Name|Usage|
 |---------|-----|----|
 |L1|Mean Absolute Error|Regression|
-|||L2|Mean Squared Error|Regression|
+|L2|Mean Squared Error|Regression|
 |KLD|KL Divergence|Probabilty Distribution|
 |CE|Cross Entropy|Classification|
 |BCE|Binary Cross Entropy|Binary Classification|
@@ -15,3 +16,24 @@
 |Hungarian Matching|Hungarian Matching|Object detection bbox|
 |Adversarial Loss|Adversarial Loss|GANs, Making Model Resistant to Adversarial Attacks, T2I Step Distillation, Privacy Preservation|
 |Boundary Loss|Boundary Loss|Segmentation|
+
+## Different Activation and Usage
+|Activation Name|Usage|
+|---------------|------|
+|ReLU|Intermediate Layers|
+|ReLU6|Same as Relu|
+|tanh|In RNNs|
+|Sigmoid|Binary Classification|
+|ELU|Same as Relu|
+|Softmax|Multiclass Classification, Probability Distiribution, LLMs|
+|Swish|BERT, Transformers|
+|GGLU|NLP, SD|
+
+## Different NormLayer and Usages
+|Norm Type|Usecases|
+|---------|--------|
+|Instance|Style Transfer, Image Generation (GAN)|
+|LayerNorm|RNN, Transformers|
+|GroupNorm|Image Classification, Object Detection|
+|BatchNorm|Image Classification, Object Detection|
+|AdaIN|Style Transfer, Image Editing, GANs|
