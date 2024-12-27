@@ -88,34 +88,36 @@ class DiTBlockOutput:
 
 
 class AdaIn(nn.Module):
-    def __init__(self,dims:int, config:DiTConfig):
+    def __init__(self, dims: int, config: DiTConfig):
         super(AdaIn, self).__init__()
-        self.sigma = nn.Linear(config.intermediate_dims, dims)                    
-        self.mu = nn.Linear(config.intermediate_dims, dims)            
-        
+        self.sigma = nn.Linear(config.intermediate_dims, dims)
+        self.mu = nn.Linear(config.intermediate_dims, dims)
 
     def forward(self, x, y):
         x = x * self.sigma(y) + self.mu(y)
         return x
 
-class FeedForward(nn.Module):    
-    def __init__(self,config:DiTConfig):
+
+class FeedForward(nn.Module):
+    def __init__(self, config: DiTConfig):
         super(FeedForward, self).__init__()
         self.mlp = nn.Sequential(
-            nn.Linear(config.model_dims,config.intermediate_dims),
-            nn.Linear(config.intermediate_dims,config.intermediate_dims),
-            nn.Linear(config.intermediate_dims,config.model_dims),
+            nn.Linear(config.model_dims, config.intermediate_dims),
+            nn.Linear(config.intermediate_dims, config.intermediate_dims),
+            nn.Linear(config.intermediate_dims, config.model_dims),
             nn.GELU(),
         )
+
     def forward(self, x):
         x = self.mlp(x)
         return x
+
 
 class DiTBlock(nn.Module):
     def __init__(self, config: DiTConfig):
         super(DiTBlock, self).__init__()
         self.config = config
-        
+
         self.self_attn = Attention(config=config, is_cross_attn=False)
         self.cross_attn_1 = Attention(config=config, is_cross_attn=True)
         self.cross_attn_2 = Attention(config=config, is_cross_attn=True)
@@ -124,22 +126,22 @@ class DiTBlock(nn.Module):
         self.norm_2 = nn.LayerNorm(config.model_dims)
         self.norm_3 = nn.LayerNorm(config.model_dims)
 
-        self.adain_latent = AdaIn(config.model_dims,config=config)
-        self.adain_context = AdaIn(config.context_dims,config=config)
+        self.adain_latent = AdaIn(config.model_dims, config=config)
+        self.adain_context = AdaIn(config.context_dims, config=config)
 
         self.ff = FeedForward(config=config)
 
     def forward(self, latent, timesteps, context) -> DiTBlockOutput:
-        timesteps = torch.unsqueeze(timesteps,1)
-        latent = self.adain_latent(latent,timesteps)
-        context = self.adain_context(context,timesteps)
+        timesteps = torch.unsqueeze(timesteps, 1)
+        latent = self.adain_latent(latent, timesteps)
+        context = self.adain_context(context, timesteps)
 
-        latent = self.norm_1(latent)
         latent = self.self_attn(latent, latent, latent) + latent
-        latent = self.norm_2(latent)
+        latent = self.norm_1(latent)
         latent = self.cross_attn_1(latent, context, context) + latent
-        latent = self.norm_3(latent)
+        latent = self.norm_2(latent)
         latent = self.cross_attn_2(latent, context, context) + latent
+        latent = self.norm_3(latent)
 
         latent = self.ff(latent)
 
@@ -149,7 +151,7 @@ class DiTBlock(nn.Module):
         )
 
 
-class DiT(nn.Module):    
+class DiT(nn.Module):
     def __init__(self, config: DiTConfig):
         super().__init__()
         self.d2s = nn.PixelUnshuffle(config.scale)
@@ -197,13 +199,14 @@ class DiT(nn.Module):
         latent = torch.reshape(latent, (b, c, h, w))
         latent = self.s2d(latent)
         return latent
-    
+
 
 class DitModel(PreTrainedModel):
     config_class = DiTConfig
-    def __init__(self, config:DiTConfig, *inputs, **kwargs):
+
+    def __init__(self, config: DiTConfig, *inputs, **kwargs):
         super().__init__(config, *inputs, **kwargs)
         self.model = DiT(config=config)
-    
-    def forward(self,latent,timesteps,context):
-        return self.model(latent,timesteps,context)
+
+    def forward(self, latent, timesteps, context):
+        return self.model(latent, timesteps, context)
