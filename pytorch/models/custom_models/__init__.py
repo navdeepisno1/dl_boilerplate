@@ -1,1 +1,1 @@
-from .dit.dit import DiT,DiTBlockOutput,DiTConfig
+from .dit.dit import DiT,DiTBlockOutput,DiTConfig,DitModel

@@ -13,7 +13,7 @@ class DiTConfig(PretrainedConfig):
             context_dims: int = 768,
             n_heads: int = 16,
             head_dims: int = 128,
-            model_dims: int = 512,
+            model_dims: int = 768,
             intermediate_dims: int = 1024,
             scale: int = 8,
             use_linear_attn: bool = False,
@@ -133,11 +133,9 @@ class DiTBlock(nn.Module):
         )
 
 
-class DiT(PreTrainedModel):
-    config_class = DiTConfig
-
-    def __init__(self, config: DiTConfig, **kwargs):
-        super().__init__(config, **kwargs)
+class DiT(nn.Module):    
+    def __init__(self, config: DiTConfig):
+        super().__init__()
         self.d2s = nn.PixelUnshuffle(config.scale)
         self.s2d = nn.PixelShuffle(config.scale)
 
@@ -183,3 +181,13 @@ class DiT(PreTrainedModel):
         latent = torch.reshape(latent, (b, c, h, w))
         latent = self.s2d(latent)
         return latent
+    
+
+class DitModel(PreTrainedModel):
+    config_class = DiTConfig
+    def __init__(self, config:DiTConfig, *inputs, **kwargs):
+        super().__init__(config, *inputs, **kwargs)
+        self.model = DiT(config=config)
+    
+    def forward(self,latent,timesteps,context):
+        return self.model(latent,timesteps,context)
