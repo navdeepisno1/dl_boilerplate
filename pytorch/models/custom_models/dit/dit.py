@@ -98,6 +98,18 @@ class AdaIn(nn.Module):
         x = x * self.sigma(y) + self.mu(y)
         return x
 
+class FeedForward(nn.Module):    
+    def __init__(self,config:DiTConfig):
+        super(FeedForward, self).__init__()
+        self.mlp = nn.Sequential(
+            nn.Linear(config.model_dims,config.intermediate_dims),
+            nn.Linear(config.intermediate_dims,config.intermediate_dims),
+            nn.Linear(config.intermediate_dims,config.model_dims),
+            nn.GELU(),
+        )
+    def forward(self, x):
+        x = self.mlp(x)
+        return x
 
 class DiTBlock(nn.Module):
     def __init__(self, config: DiTConfig):
@@ -115,6 +127,8 @@ class DiTBlock(nn.Module):
         self.adain_latent = AdaIn(config.model_dims,config=config)
         self.adain_context = AdaIn(config.context_dims,config=config)
 
+        self.ff = FeedForward(config=config)
+
     def forward(self, latent, timesteps, context) -> DiTBlockOutput:
         timesteps = torch.unsqueeze(timesteps,1)
         latent = self.adain_latent(latent,timesteps)
@@ -126,6 +140,8 @@ class DiTBlock(nn.Module):
         latent = self.cross_attn_1(latent, context, context) + latent
         latent = self.norm_3(latent)
         latent = self.cross_attn_2(latent, context, context) + latent
+
+        latent = self.ff(latent)
 
         return DiTBlockOutput(
             latent=latent,
