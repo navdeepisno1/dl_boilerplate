@@ -2,3 +2,4 @@
 *.pth
 *.tflite
 *.pt
+.ipynb_checkpoints
