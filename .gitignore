@@ -3,3 +3,4 @@
 *.tflite
 *.pt
 .ipynb_checkpoints
+*.csv
