@@ -16,6 +16,7 @@
 |Hungarian Matching|Hungarian Matching|Object detection bbox|
 |Adversarial Loss|Adversarial Loss|GANs, Making Model Resistant to Adversarial Attacks, T2I Step Distillation, Privacy Preservation|
 |Boundary Loss|Boundary Loss|Segmentation|
+|LPIPS|Perceptual Similarity|For Comparing images features, in AutoEncoders|
 
 ## Different Activation and Usage
 |Activation Name|Usage|
@@ -30,10 +31,10 @@
 |GGLU|NLP, SD|
 
 ## Different NormLayer and Usages
-|Norm Type|Usecases|
-|---------|--------|
-|Instance|Style Transfer, Image Generation (GAN)|
-|LayerNorm|RNN, Transformers|
-|GroupNorm|Image Classification, Object Detection|
-|BatchNorm|Image Classification, Object Detection|
-|AdaIN|Style Transfer, Image Editing, GANs|
+|Norm Type|Usecases|Requirement|
+|---------|--------|--------|
+|Instance|Style Transfer, Image Generation (GAN)|NA|
+|LayerNorm|RNN, Transformers|Recurrent layers, No fixed sequences|
+|GroupNorm|Image Classification, Object Detection|NA|
+|BatchNorm|Image Classification, Object Detection|High batch size, fixed sequences|
+|AdaIN|Style Transfer, Image Editing, GANs|NA|
